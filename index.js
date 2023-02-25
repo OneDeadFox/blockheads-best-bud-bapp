@@ -1,28 +1,22 @@
 const express = require('express');
-const { ObjectId } = require('mongodb');
-const mongodb = require('mongodb').MongoClient;
+const db = require('./config/connection');
+const controllers = require('./controllers');
 
+const cwd = process.cwd();
 
+const PORT = 3001;
 const app = express();
-const port = 3030;
 
-const connectionStringURI = `mongodb://127.0.0.1:27017/shelterDB`;
+// const activity = cwd.includes('01-Activities')
+//     ? cwd.split('/01-Activities/')[1]
+//     : cwd;
 
-let db;
-
-mongodb.connect(
-    connectionStringURI,
-    { useNewUrlParser: true, useUnifiedTopology: true },
-    (err, client) => {
-        db = client.db();
-        app.listen(port, () => {
-            console.log(`Listening to some dope beats by Deltron ${port}`);
-        });
-    }
-);
-
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(controllers);
 
-
-
-
+db.once('open', () => {
+    app.listen(PORT, () => {
+        console.log(`API server for ${activity} running on port ${PORT}!`);
+    });
+});
